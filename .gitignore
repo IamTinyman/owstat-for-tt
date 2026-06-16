@@ -1,0 +1,43 @@
+# Sensitive config (contains real credentials)
+config.yaml
+
+# Cached assets (regenerated at runtime)
+overstats/
+
+# Agent guide
+AGENTS.md
+
+# Python bytecode
+*.pyc
+__pycache__/
+
+# Environment
+.env
+
+# Database files
+*.db
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Runtime caches
+Overstats/cache/
+Overstats/res/cache_img/
+Overstats/res/query_tool_assets/
+Overstats/src/modules/dashen_summary/runtime/cache/
+
+# Build artifacts
+Overstats/ui/dist/
+Overstats/ui/node_modules/
+
+# Test artifacts
+test_*.json
+test_*.md
+test_report_*.md
+.claude/settings.local.json
