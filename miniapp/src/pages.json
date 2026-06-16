@@ -1,0 +1,31 @@
+{
+  "pages": [
+    {
+      "path": "pages/login/index",
+      "style": {
+        "navigationBarTitleText": "Overstats",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "数据查询",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/module/index",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationStyle": "custom"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "Overstats",
+    "navigationBarBackgroundColor": "#131820",
+    "backgroundColor": "#131820"
+  }
+}

@@ -1,0 +1,36 @@
+/* ── Ground ── */
+$bg-base: #131820;
+$bg-surface: #19202b;
+$bg-surface-raised: #1f2733;
+
+/* ── Text ── */
+$text-primary: #f0ede6;
+$text-secondary: #a8a39a;
+$text-muted: #6b6560;
+
+/* ── Accent ── */
+$accent: #e8924e;
+$accent-light: #f0b878;
+$accent-strong: #d07830;
+
+/* ── Borders ── */
+$hairline: rgba(255, 255, 255, 0.06);
+$line: rgba(255, 255, 255, 0.08);
+
+/* ── Radius ── */
+$radius-sm: 12rpx;
+$radius-md: 20rpx;
+$radius-lg: 32rpx;
+
+/* ── Global ── */
+page {
+  background: $bg-base;
+  color: $text-primary;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+view, text, button, input {
+  box-sizing: border-box;
+}

@@ -36,8 +36,14 @@ Overstats/src/modules/dashen_summary/runtime/cache/
 Overstats/ui/dist/
 Overstats/ui/node_modules/
 
+# Miniapp build
+miniapp/dist/
+miniapp/node_modules/
+
 # Test artifacts
 test_*.json
 test_*.md
 test_report_*.md
 .claude/settings.local.json
+
+package-lock.json

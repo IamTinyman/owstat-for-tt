@@ -2,10 +2,44 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import os
-from typing import Any, Optional, Tuple
+from pathlib import Path
+from typing import Any, Dict, Optional, Tuple
+
+import yaml
 
 from . import config
 
+
+# ---------------------------------------------------------------------------
+# config.yaml override – the single source of secrets
+# ---------------------------------------------------------------------------
+
+def _load_yaml_overrides() -> Dict[str, Any]:
+    """Load ``config.yaml`` from the project root (parent of the config package)."""
+    yaml_path = Path(__file__).resolve().parents[2] / "config.yaml"
+    if not yaml_path.is_file():
+        return {}
+    try:
+        with open(yaml_path, "r", encoding="utf-8") as fh:
+            raw = yaml.safe_load(fh) or {}
+    except Exception:
+        return {}
+    if not isinstance(raw, dict):
+        return {}
+    return raw
+
+
+_YAML = _load_yaml_overrides()
+
+
+def _yaml_value(key: str, default: Any = None) -> Any:
+    """Read a flat key from config.yaml (case-sensitive)."""
+    return _YAML.get(key, default)
+
+
+# ---------------------------------------------------------------------------
+# env helpers
+# ---------------------------------------------------------------------------
 
 def _read_bool_env(name: str, default: bool) -> bool:
     raw = os.getenv(name)
@@ -61,6 +95,10 @@ def _normalize_proxy_pool(raw_value: Any) -> Tuple[Optional[str], ...]:
     return tuple(normalized or [None])
 
 
+# ---------------------------------------------------------------------------
+# config dataclasses
+# ---------------------------------------------------------------------------
+
 @dataclass(frozen=True)
 class APIConfig:
     host: str
@@ -95,17 +133,26 @@ class DashenClientConfig:
     ow_esports_api_key: str
 
 
-def _normalize_accounts() -> Tuple[DashenCredentialConfig, ...]:
-    raw_accounts = getattr(config, "DASHEN_ACCOUNTS", [])
-    normalized_accounts = []
-    used_names = set()
-    default_dts = _as_positive_int(getattr(config, "DASHEN_DTS", 2026), "DASHEN_DTS")
-    default_server = _as_positive_int(getattr(config, "DASHEN_SERVER", 1), "DASHEN_SERVER")
+# ---------------------------------------------------------------------------
+# account normalisation (config.py → overridden by config.yaml)
+# ---------------------------------------------------------------------------
 
+def _normalize_accounts() -> Tuple[DashenCredentialConfig, ...]:
+    # Prefer config.yaml roleid / token when present, otherwise fall back to config.py
+    yaml_role_id = _yaml_value("roleid")
+    yaml_token = _yaml_value("token")
+
+    raw_accounts = getattr(config, "DASHEN_ACCOUNTS", [])
     if not isinstance(raw_accounts, (list, tuple)):
         raise ValueError("DASHEN_ACCOUNTS must be a list or tuple.")
     if not raw_accounts:
         raise ValueError("DASHEN_ACCOUNTS must contain at least one account.")
+
+    default_dts = _as_positive_int(getattr(config, "DASHEN_DTS", 2026), "DASHEN_DTS")
+    default_server = _as_positive_int(getattr(config, "DASHEN_SERVER", 1), "DASHEN_SERVER")
+
+    normalized_accounts = []
+    used_names = set()
 
     for index, raw_account in enumerate(raw_accounts, start=1):
         if not isinstance(raw_account, dict):
@@ -118,11 +165,25 @@ def _normalize_accounts() -> Tuple[DashenCredentialConfig, ...]:
             raise ValueError(f"DASHEN_ACCOUNTS contains duplicate account name: {name}")
         used_names.add(name)
 
+        # config.yaml overrides for the first account
+        if index == 1 and yaml_role_id is not None:
+            try:
+                role_id = int(yaml_role_id)
+            except (TypeError, ValueError):
+                role_id = _as_positive_int(raw_account.get("role_id"), f"DASHEN_ACCOUNTS[{index - 1}].role_id")
+        else:
+            role_id = _as_positive_int(raw_account.get("role_id"), f"DASHEN_ACCOUNTS[{index - 1}].role_id")
+
+        if index == 1 and yaml_token is not None:
+            token = _as_non_empty_string(yaml_token, f"DASHEN_ACCOUNTS[{index - 1}].token")
+        else:
+            token = _as_non_empty_string(raw_account.get("token"), f"DASHEN_ACCOUNTS[{index - 1}].token")
+
         normalized_accounts.append(
             DashenCredentialConfig(
                 name=name,
-                role_id=_as_positive_int(raw_account.get("role_id"), f"DASHEN_ACCOUNTS[{index - 1}].role_id"),
-                token=_as_non_empty_string(raw_account.get("token"), f"DASHEN_ACCOUNTS[{index - 1}].token"),
+                role_id=role_id,
+                token=token,
                 dts=default_dts,
                 server=default_server,
             )
@@ -137,6 +198,10 @@ def _default_dashen_max_accepted_requests() -> int:
         return 4
     return max(1, len(raw_accounts) * 4)
 
+
+# ---------------------------------------------------------------------------
+# public getters
+# ---------------------------------------------------------------------------
 
 def get_api_config() -> APIConfig:
     return APIConfig(
@@ -162,6 +227,22 @@ def get_api_config() -> APIConfig:
             ),
         ),
     )
+
+
+# Map config.yaml flat keys → config.py attribute names.
+# When a YAML key is present its value is injected into the config module
+# so that every ``getattr(config, "ATTR")`` call sees the secret.
+_YAML_OVERRIDE_MAP: Dict[str, str] = {
+    "analysis_api_key":    "ANALYSIS_API_KEY",
+    "analysis_base_url":   "ANALYSIS_BASE_URL",
+    "analysis_proxy":      "ANALYSIS_PROXY",
+    "ow_esports_api_key":  "OW_ESPORTS_API_KEY",
+}
+
+for _yaml_key, _attr_name in _YAML_OVERRIDE_MAP.items():
+    _val = _yaml_value(_yaml_key)
+    if _val is not None:
+        setattr(config, _attr_name, _val)
 
 
 def get_dashen_client_config() -> DashenClientConfig:

@@ -10,8 +10,8 @@ USE_STREAM_RESPONSE = True
 DASHEN_ACCOUNTS = [
     {
         "name": "account-1",
-        "role_id": 1140138010003,  # 替换为你的 role_id
-        "token": "d9fbbbd06115867f38834c209e506159",   # 替换为你的 token
+        "role_id": 0,  # ← 请在 ../config.yaml 中填写 roleid
+        "token": "",   # ← 请在 ../config.yaml 中填写 token
     },
 ]
 
