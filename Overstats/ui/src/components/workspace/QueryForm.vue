@@ -96,17 +96,14 @@ async function handleSubmit() {
 
 <style scoped>
 .query-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius-lg);
-  padding: 28px;
+  padding: 0;
 }
 
-.card-head { margin-bottom: 24px; }
+.card-head { margin-bottom: 20px; }
 
 .card-head h3 {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.01em;
@@ -114,33 +111,33 @@ async function handleSubmit() {
 
 .card-sub {
   display: block;
-  margin-top: 6px;
+  margin-top: 4px;
   color: var(--text-muted);
-  font-size: 0.84rem;
+  font-size: 0.8rem;
 }
 
-.query-form { display: grid; gap: 22px; }
+.query-form { display: grid; gap: 18px; }
 
 .field-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: 1fr;
+  gap: 12px;
 }
 
 .form-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  display: grid;
+  gap: 10px;
 }
 
 .submit-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  width: 100%;
   border: none;
   border-radius: var(--radius-md);
-  padding: 12px 32px;
+  padding: 13px 24px;
   background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   color: var(--text-primary);
   font-weight: 600;
@@ -168,11 +165,6 @@ async function handleSubmit() {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.status-text { color: var(--text-muted); font-size: 0.85rem; }
+.status-text { color: var(--text-muted); font-size: 0.85rem; text-align: center; }
 .status-text.is-error { color: var(--danger); }
-
-@media (max-width: 640px) {
-  .field-grid { grid-template-columns: 1fr; }
-  .query-card { padding: 18px; }
-}
 </style>
